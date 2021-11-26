@@ -10,7 +10,9 @@ height = 500
 
 cols = 25
 rows = 20
-
+pygame.init()
+life_up = pygame.mixer.Sound("./sounds/life_up.mp3")
+life_down = pygame.mixer.Sound("./sounds/life_down.mp3")
 
 class cube():
     rows = 20
@@ -178,10 +180,12 @@ def main():
         headPos = s.head.pos
         if headPos[0] >= 20 or headPos[0] < 0 or headPos[1] >= 20 or headPos[1] < 0:
             print("Score:", len(s.body))
+            life_down.play()
             s.reset((10, 10))
 
         if s.body[0].pos == snack.pos:
             s.addCube()
+            life_up.play()
             snack = cube(randomSnack(rows,s), color=(0,255,0))
             
         for x in range(len(s.body)):
