@@ -131,6 +131,7 @@ def redrawWindow():
     snack.draw(win)
     # 아이템 게임 보드에 그리기
     item.draw(win)
+    obstacle.draw(win)
     pygame.display.update()
     pass
 
@@ -165,13 +166,17 @@ def randomSnack(rows, item):
 
 
 def main():
-    global s, snack, win, item
+    global s, snack, win, item, obstacle
     win = pygame.display.set_mode((width,height))
     s = snake((255,0,0), (10,10))
     snack = cube(randomSnack(rows,s), color=(0,255,0))
     # 아이템 객체 만들기
     # 색상 : 흰색 (변경가능)
     item = cube(randomSnack(rows, s), color=(255,255,255))
+    
+    # 장애물 객체 만들기
+    # 색상 : 파란색
+    obstacle = cube(randomSnack(rows, s), color=(0,0,255))
     flag = True
     clock = pygame.time.Clock()
     
@@ -185,8 +190,7 @@ def main():
             s.reset((10, 10))
 
         if s.body[0].pos == snack.pos:
-            for i in range(10):
-                s.addCube()
+            s.addCube()
             snack = cube(randomSnack(rows,s), color=(0,255,0))
             item = cube(randomSnack(rows, s), color=(255,255,255))
 
@@ -197,7 +201,14 @@ def main():
                 s.removeCube()
                 item = cube(randomSnack(rows, s), color=(255,255,255))
             item = cube(randomSnack(rows, s), color=(255,255,255))
-            
+        
+
+        # 장애물에 닿았을 때 게임오버
+        if s.body[0].pos == obstacle.pos:
+            print("Score:", len(s.body))
+            s.reset((10,10))
+
+
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z:z.pos,s.body[x+1:])):
                 print("Score:", len(s.body))
