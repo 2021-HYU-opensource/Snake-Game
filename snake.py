@@ -10,9 +10,7 @@ height = 500
 
 cols = 25
 rows = 20
-pygame.init()
-life_up = pygame.mixer.Sound("./sounds/life_up.mp3")
-life_down = pygame.mixer.Sound("./sounds/life_down.mp3")
+
 
 class cube():
     rows = 20
@@ -42,8 +40,6 @@ class cube():
             circleMiddle2 = (i*dis + dis -radius*2, j*dis+8)
             pygame.draw.circle(surface, (0,0,0), circleMiddle, radius)
             pygame.draw.circle(surface, (0,0,0), circleMiddle2, radius)
-        
-
 
 class snake():
     body = []
@@ -103,7 +99,6 @@ class snake():
     def addCube(self):
         tail = self.body[-1]
         dx, dy = tail.dirnx, tail.dirny
-
         if dx == 1 and dy == 0:
             self.body.append(cube((tail.pos[0]-1,tail.pos[1])))
         elif dx == -1 and dy == 0:
@@ -112,10 +107,13 @@ class snake():
             self.body.append(cube((tail.pos[0],tail.pos[1]-1)))
         elif dx == 0 and dy == -1:
             self.body.append(cube((tail.pos[0],tail.pos[1]+1)))
-
         self.body[-1].dirnx = dx
         self.body[-1].dirny = dy
-    
+
+    # 길이 줄이는 함수.
+    def removeCube(self):
+        self.body.pop()
+
     def draw(self, surface):
         for i,c in enumerate(self.body):
             if i == 0:
@@ -131,6 +129,8 @@ def redrawWindow():
     drawGrid(width, rows, win)
     s.draw(win)
     snack.draw(win)
+    # 아이템 게임 보드에 그리기
+    item.draw(win)
     pygame.display.update()
     pass
 
@@ -165,11 +165,13 @@ def randomSnack(rows, item):
 
 
 def main():
-    global s, snack, win
+    global s, snack, win, item
     win = pygame.display.set_mode((width,height))
     s = snake((255,0,0), (10,10))
-    s.addCube()
     snack = cube(randomSnack(rows,s), color=(0,255,0))
+    # 아이템 객체 만들기
+    # 색상 : 흰색 (변경가능)
+    item = cube(randomSnack(rows, s), color=(255,255,255))
     flag = True
     clock = pygame.time.Clock()
     
@@ -180,13 +182,21 @@ def main():
         headPos = s.head.pos
         if headPos[0] >= 20 or headPos[0] < 0 or headPos[1] >= 20 or headPos[1] < 0:
             print("Score:", len(s.body))
-            life_down.play()
             s.reset((10, 10))
 
         if s.body[0].pos == snack.pos:
-            s.addCube()
-            life_up.play()
+            for i in range(10):
+                s.addCube()
             snack = cube(randomSnack(rows,s), color=(0,255,0))
+            item = cube(randomSnack(rows, s), color=(255,255,255))
+
+        # 아이템을 먹으면 길이 줄이기.
+        # 만약 길이가 1이라면 길이를 줄이지 않고 위치만 바꿈.
+        if s.body[0].pos == item.pos:
+            if len(s.body) > 1:
+                s.removeCube()
+                item = cube(randomSnack(rows, s), color=(255,255,255))
+            item = cube(randomSnack(rows, s), color=(255,255,255))
             
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z:z.pos,s.body[x+1:])):
@@ -197,6 +207,3 @@ def main():
         redrawWindow()
 
 main()
-    
-
-    
