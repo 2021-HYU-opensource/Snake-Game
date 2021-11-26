@@ -4,7 +4,9 @@ import pygame
 import random
 import tkinter as tk
 from tkinter import messagebox
-
+pygame.init()
+life_up = pygame.mixer.Sound("./sounds/life_up.mp3")
+life_down = pygame.mixer.Sound("./sounds/life_down.mp3")
 width = 500
 height = 500
 
@@ -188,11 +190,13 @@ def main():
         if headPos[0] >= 20 or headPos[0] < 0 or headPos[1] >= 20 or headPos[1] < 0:
             print("Score:", len(s.body))
             s.reset((10, 10))
+            life_down.play()
 
         if s.body[0].pos == snack.pos:
             s.addCube()
             snack = cube(randomSnack(rows,s), color=(0,255,0))
             item = cube(randomSnack(rows, s), color=(255,255,255))
+            life_up.play()
 
         # 아이템을 먹으면 길이 줄이기.
         # 만약 길이가 1이라면 길이를 줄이지 않고 위치만 바꿈.
@@ -201,12 +205,14 @@ def main():
                 s.removeCube()
                 item = cube(randomSnack(rows, s), color=(255,255,255))
             item = cube(randomSnack(rows, s), color=(255,255,255))
+            life_up.play()
         
 
         # 장애물에 닿았을 때 게임오버
         if s.body[0].pos == obstacle.pos:
             print("Score:", len(s.body))
             s.reset((10,10))
+            life_down.play()
 
 
         for x in range(len(s.body)):
@@ -214,6 +220,7 @@ def main():
                 print("Score:", len(s.body))
                 s.reset((10,10))
                 break
+
                     
         redrawWindow()
 
