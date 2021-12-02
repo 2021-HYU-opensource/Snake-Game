@@ -4,6 +4,9 @@ import pygame
 import random
 import tkinter as tk
 from tkinter import messagebox
+import sys
+from time import sleep
+
 pygame.init()
 life_up = pygame.mixer.Sound("./sounds/life_up.mp3")
 life_down = pygame.mixer.Sound("./sounds/life_down.mp3")
@@ -59,6 +62,7 @@ class snake():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit(0)
             keys = pygame.key.get_pressed()
 
             for key in keys:
@@ -134,8 +138,14 @@ def redrawWindow():
     # 아이템 게임 보드에 그리기
     item.draw(win)
     obstacle.draw(win)
-    pygame.display.update()
-    pass
+    draw_score()
+    if gameover == 1:
+        draw_gameover()
+        pygame.display.update()
+        sleep(1)
+    else:
+        pygame.display.update() #화면을 업데이트
+    
 
 
 
@@ -166,9 +176,21 @@ def randomSnack(rows, item):
 
     return (x,y)
 
+def draw_score():
+    YELLOW = (255, 255, 0)
+    small_font = pygame.font.SysFont(None, 36)
+    score_image = small_font.render('Point {}'.format(len(s.body)), True, YELLOW)
+    win.blit(score_image, (15, 15)) # blit() 통해 게임판에 출력
+    
+def draw_gameover():
+    RED = (255, 0, 0)
+    large_font = pygame.font.SysFont(None, 72)
+    gameover_image = large_font.render('Game Over', True, RED)
+    win.blit(gameover_image, (width // 2 - gameover_image.get_width() // 2, height // 2 - gameover_image.get_height() // 2))
+
 
 def main():
-    global s, snack, win, item, obstacle
+    global s, snack, win, item, obstacle, gameover
     win = pygame.display.set_mode((width,height))
     s = snake((255,0,0), (10,10))
     snack = cube(randomSnack(rows,s), color=(0,255,0))
@@ -179,6 +201,7 @@ def main():
     # 장애물 객체 만들기
     # 색상 : 파란색
     obstacle = cube(randomSnack(rows, s), color=(0,0,255))
+    gameover = 0
     flag = True
     clock = pygame.time.Clock()
     
@@ -189,6 +212,7 @@ def main():
         headPos = s.head.pos
         if headPos[0] >= 20 or headPos[0] < 0 or headPos[1] >= 20 or headPos[1] < 0:
             print("Score:", len(s.body))
+            gameover = 1
             s.reset((10, 10))
             life_down.play()
 
@@ -211,6 +235,7 @@ def main():
         # 장애물에 닿았을 때 게임오버
         if s.body[0].pos == obstacle.pos:
             print("Score:", len(s.body))
+            gameover = 1
             s.reset((10,10))
             life_down.play()
 
@@ -218,10 +243,12 @@ def main():
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z:z.pos,s.body[x+1:])):
                 print("Score:", len(s.body))
+                gameover = 1
                 s.reset((10,10))
                 break
 
                     
         redrawWindow()
+        gameover = 0
 
 main()
