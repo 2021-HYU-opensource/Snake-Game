@@ -179,7 +179,7 @@ def randomSnack(rows, item):
 def draw_score():
     YELLOW = (255, 255, 0)
     small_font = pygame.font.SysFont(None, 36)
-    score_image = small_font.render('Point {}'.format(len(s.body)), True, YELLOW)
+    score_image = small_font.render('Point {}'.format(score), True, YELLOW)
     win.blit(score_image, (15, 15)) # blit() 통해 게임판에 출력
     
 def draw_gameover():
@@ -230,7 +230,8 @@ def title():
 
 def main():
     title()
-    global s, snack, win, item, obstacle, gameover
+    global s, snack, win, item, obstacle, gameover, score
+    score = 0
     win = pygame.display.set_mode((width,height))
     s = snake((255,0,0), (10,10))
     snack = cube(randomSnack(rows,s), color=(0,255,0))
@@ -251,7 +252,7 @@ def main():
         s.move()
         headPos = s.head.pos
         if headPos[0] >= 20 or headPos[0] < 0 or headPos[1] >= 20 or headPos[1] < 0:
-            print("Score:", len(s.body))
+            print("Score:", score)
             gameover = 1
             s.reset((10, 10))
             life_down.play()
@@ -260,6 +261,7 @@ def main():
             s.addCube()
             snack = cube(randomSnack(rows,s), color=(0,255,0))
             item = cube(randomSnack(rows, s), color=(255,255,255))
+            score += 1
             life_up.play()
 
         # 아이템을 먹으면 길이 줄이기.
@@ -274,7 +276,7 @@ def main():
 
         # 장애물에 닿았을 때 게임오버
         if s.body[0].pos == obstacle.pos:
-            print("Score:", len(s.body))
+            print("Score:", score)
             gameover = 1
             s.reset((10,10))
             life_down.play()
@@ -282,7 +284,7 @@ def main():
 
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z:z.pos,s.body[x+1:])):
-                print("Score:", len(s.body))
+                print("Score:", score)
                 gameover = 1
                 s.reset((10,10))
                 break
