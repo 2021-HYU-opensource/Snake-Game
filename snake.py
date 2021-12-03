@@ -4,7 +4,6 @@ import pygame
 import random
 import tkinter as tk
 from tkinter import messagebox
-import sys
 from time import sleep
 
 pygame.init()
@@ -199,6 +198,7 @@ def title():
         pygame.display.set_caption("pygame test")
         SCREEN.fill((0, 0, 0))
         myFont = pygame.font.SysFont("arial", 30, True, False)
+        myFont2 = pygame.font.SysFont("arial", 15, True, False)
         title = myFont.render("Snake Game", True, white)
         text = title.get_rect()
         text.centerx = round(width / 2)
@@ -211,9 +211,20 @@ def title():
         text2 = title.get_rect()
         text2.centerx = round(width / 4 - 15)
         text2.y = 200
+        help = myFont.render("Rule", True, white)
+        help2 = myFont2.render("Green : Score + 1, \n Lenth +1 Blue : Game over, White : Lenth - 1", True, white)
+        text3 = title.get_rect()
+        text4 = title.get_rect()
+        text4.centerx = round(width / 4 - 15)
+        text3.centerx = round(width / 4 - 15)
+        text3.y = 350
+        text4.y = 400
         SCREEN.blit(title, text)
         SCREEN.blit(start, text1)
         SCREEN.blit(exit, text2)
+        SCREEN.blit(help, text3)
+        SCREEN.blit(help2, text4)
+
         pygame.display.flip()
         clock.tick(60)
         for event in pygame.event.get():
@@ -288,6 +299,7 @@ def main():
                 print("Score:", score)
                 gameover = 1
                 s.reset((10,10))
+                life_down.play()
                 score = 0
                 break
 
