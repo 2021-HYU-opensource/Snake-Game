@@ -188,8 +188,48 @@ def draw_gameover():
     gameover_image = large_font.render('Game Over', True, RED)
     win.blit(gameover_image, (width // 2 - gameover_image.get_width() // 2, height // 2 - gameover_image.get_height() // 2))
 
+#Start Menu
+def title():
+    white = (255, 255, 255)
+    pygame.init()
+    clock = pygame.time.Clock()
+    playing = True
+    while playing:
+        SCREEN = pygame.display.set_mode( (500, 500) )
+        pygame.display.set_caption("pygame test")
+        SCREEN.fill((0, 0, 0))
+        myFont = pygame.font.SysFont("arial", 30, True, False)
+        title = myFont.render("Snake Game", True, white)
+        text = title.get_rect()
+        text.centerx = round(width / 2)
+        text.y = 50
+        start = myFont.render("Y : Start", True, white)
+        text1 = title.get_rect()
+        text1.centerx = round(width / 4 - 15)
+        text1.y = 150
+        exit = myFont.render("ESC : Exit", True, white)
+        text2 = title.get_rect()
+        text2.centerx = round(width / 4 - 15)
+        text2.y = 200
+        SCREEN.blit(title, text)
+        SCREEN.blit(start, text1)
+        SCREEN.blit(exit, text2)
+        pygame.display.flip()
+        clock.tick(60)
+        for event in pygame.event.get():
+             if event.type == pygame.KEYDOWN:
+                 if event.key == ord('y'):
+                    playing = False
+                    break
+                 if event.key == ord('ESC'):
+                    playing = False
+                    pygame.exit()
+             if event.type == pygame.QUIT:
+                 playing = False
+                 pygame.exit() 
 
 def main():
+    title()
     global s, snack, win, item, obstacle, gameover
     win = pygame.display.set_mode((width,height))
     s = snake((255,0,0), (10,10))
