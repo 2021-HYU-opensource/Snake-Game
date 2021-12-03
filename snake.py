@@ -4,6 +4,7 @@ import pygame
 import random
 import tkinter as tk
 from tkinter import messagebox
+import sys
 from time import sleep
 
 pygame.init()
@@ -212,7 +213,7 @@ def title():
         text2.centerx = round(width / 4 - 15)
         text2.y = 200
         help = myFont.render("Rule", True, white)
-        help2 = myFont2.render("Green : Score + 1, Lenth +1 Blue : Game over, White : Lenth - 1", True, white)
+        help2 = myFont2.render("Green : Score + 1, \n Lenth +1 Blue : Game over, White : Lenth - 1", True, white)
         text3 = title.get_rect()
         text4 = title.get_rect()
         text4.centerx = round(width / 4 - 15)
@@ -232,12 +233,14 @@ def title():
                  if event.key == ord('y'):
                     playing = False
                     break
-                 if event.key == ord('ESC'):
+                 if event.key == pygame.K_ESCAPE:
                     playing = False
-                    pygame.exit()
+                    pygame.quit()
+                    sys.exit(0)
              if event.type == pygame.QUIT:
                  playing = False
-                 pygame.exit() 
+                 pygame.quit()
+                 sys.exit(0)
 
 def main():
     title()
