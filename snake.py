@@ -212,7 +212,7 @@ def title():
         text2.centerx = round(width / 4 - 15)
         text2.y = 200
         help = myFont.render("Rule", True, white)
-        help2 = myFont2.render("Green : Score + 1, \n Lenth +1 Blue : Game over, White : Lenth - 1", True, white)
+        help2 = myFont2.render("Green : Score + 1, Lenth +1 Blue : Game over, White : Lenth - 1", True, white)
         text3 = title.get_rect()
         text4 = title.get_rect()
         text4.centerx = round(width / 4 - 15)
