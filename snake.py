@@ -255,6 +255,7 @@ def main():
             print("Score:", score)
             gameover = 1
             s.reset((10, 10))
+            score = 0
             life_down.play()
 
         if s.body[0].pos == snack.pos:
@@ -280,13 +281,14 @@ def main():
             gameover = 1
             s.reset((10,10))
             life_down.play()
-
+            score = 0
 
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z:z.pos,s.body[x+1:])):
                 print("Score:", score)
                 gameover = 1
                 s.reset((10,10))
+                score = 0
                 break
 
                     
