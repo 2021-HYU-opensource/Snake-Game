@@ -4,7 +4,12 @@ import pygame
 import random
 import tkinter as tk
 from tkinter import messagebox
+import sys
+from time import sleep
 
+pygame.init()
+life_up = pygame.mixer.Sound("./sounds/life_up.mp3")
+life_down = pygame.mixer.Sound("./sounds/life_down.mp3")
 width = 500
 height = 500
 
@@ -40,8 +45,6 @@ class cube():
             circleMiddle2 = (i*dis + dis -radius*2, j*dis+8)
             pygame.draw.circle(surface, (0,0,0), circleMiddle, radius)
             pygame.draw.circle(surface, (0,0,0), circleMiddle2, radius)
-        
-
 
 class snake():
     body = []
@@ -59,6 +62,7 @@ class snake():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
+                sys.exit(0)
             keys = pygame.key.get_pressed()
 
             for key in keys:
@@ -101,7 +105,6 @@ class snake():
     def addCube(self):
         tail = self.body[-1]
         dx, dy = tail.dirnx, tail.dirny
-
         if dx == 1 and dy == 0:
             self.body.append(cube((tail.pos[0]-1,tail.pos[1])))
         elif dx == -1 and dy == 0:
@@ -110,10 +113,13 @@ class snake():
             self.body.append(cube((tail.pos[0],tail.pos[1]-1)))
         elif dx == 0 and dy == -1:
             self.body.append(cube((tail.pos[0],tail.pos[1]+1)))
-
         self.body[-1].dirnx = dx
         self.body[-1].dirny = dy
-    
+
+    # 길이 줄이는 함수.
+    def removeCube(self):
+        self.body.pop()
+
     def draw(self, surface):
         for i,c in enumerate(self.body):
             if i == 0:
@@ -129,8 +135,17 @@ def redrawWindow():
     drawGrid(width, rows, win)
     s.draw(win)
     snack.draw(win)
-    pygame.display.update()
-    pass
+    # 아이템 게임 보드에 그리기
+    item.draw(win)
+    obstacle.draw(win)
+    draw_score()
+    if gameover == 1:
+        draw_gameover()
+        pygame.display.update()
+        sleep(1)
+    else:
+        pygame.display.update() #화면을 업데이트
+    
 
 
 
@@ -161,13 +176,87 @@ def randomSnack(rows, item):
 
     return (x,y)
 
+def draw_score():
+    YELLOW = (255, 255, 0)
+    small_font = pygame.font.SysFont(None, 36)
+    score_image = small_font.render('Point {}'.format(score), True, YELLOW)
+    win.blit(score_image, (15, 15)) # blit() 통해 게임판에 출력
+    
+def draw_gameover():
+    RED = (255, 0, 0)
+    large_font = pygame.font.SysFont(None, 72)
+    gameover_image = large_font.render('Game Over', True, RED)
+    win.blit(gameover_image, (width // 2 - gameover_image.get_width() // 2, height // 2 - gameover_image.get_height() // 2))
+
+#Start Menu
+def title():
+    white = (255, 255, 255)
+    pygame.init()
+    clock = pygame.time.Clock()
+    playing = True
+    while playing:
+        SCREEN = pygame.display.set_mode( (500, 500) )
+        pygame.display.set_caption("pygame test")
+        SCREEN.fill((0, 0, 0))
+        myFont = pygame.font.SysFont("arial", 30, True, False)
+        myFont2 = pygame.font.SysFont("arial", 15, True, False)
+        title = myFont.render("Snake Game", True, white)
+        text = title.get_rect()
+        text.centerx = round(width / 2)
+        text.y = 50
+        start = myFont.render("Y : Start", True, white)
+        text1 = title.get_rect()
+        text1.centerx = round(width / 4 - 15)
+        text1.y = 150
+        exit = myFont.render("ESC : Exit", True, white)
+        text2 = title.get_rect()
+        text2.centerx = round(width / 4 - 15)
+        text2.y = 200
+        help = myFont.render("Rule", True, white)
+        help2 = myFont2.render("Green : Score + 1, \n Lenth +1 Blue : Game over, White : Lenth - 1", True, white)
+        text3 = title.get_rect()
+        text4 = title.get_rect()
+        text4.centerx = round(width / 4 - 15)
+        text3.centerx = round(width / 4 - 15)
+        text3.y = 350
+        text4.y = 400
+        SCREEN.blit(title, text)
+        SCREEN.blit(start, text1)
+        SCREEN.blit(exit, text2)
+        SCREEN.blit(help, text3)
+        SCREEN.blit(help2, text4)
+
+        pygame.display.flip()
+        clock.tick(60)
+        for event in pygame.event.get():
+             if event.type == pygame.KEYDOWN:
+                 if event.key == ord('y'):
+                    playing = False
+                    break
+                 if event.key == pygame.K_ESCAPE:
+                    playing = False
+                    pygame.quit()
+                    sys.exit(0)
+             if event.type == pygame.QUIT:
+                 playing = False
+                 pygame.quit()
+                 sys.exit(0)
 
 def main():
-    global s, snack, win
+    title()
+    global s, snack, win, item, obstacle, gameover, score
+    score = 0
     win = pygame.display.set_mode((width,height))
     s = snake((255,0,0), (10,10))
-    s.addCube()
     snack = cube(randomSnack(rows,s), color=(0,255,0))
+    # 아이템 객체 만들기
+    # 색상 : 흰색 (변경가능)
+    item = cube(randomSnack(rows, s), color=(255,255,255))
+    
+    # 장애물 객체 만들기
+    # 색상 : 파란색
+    obstacle = cube(randomSnack(rows, s), color=(0,0,255))
+    gameover = 0
     flag = True
     clock = pygame.time.Clock()
     
@@ -177,22 +266,48 @@ def main():
         s.move()
         headPos = s.head.pos
         if headPos[0] >= 20 or headPos[0] < 0 or headPos[1] >= 20 or headPos[1] < 0:
-            print("Score:", len(s.body))
+            print("Score:", score)
+            gameover = 1
             s.reset((10, 10))
+            score = 0
+            life_down.play()
 
         if s.body[0].pos == snack.pos:
             s.addCube()
             snack = cube(randomSnack(rows,s), color=(0,255,0))
-            
+            item = cube(randomSnack(rows, s), color=(255,255,255))
+            score += 1
+            life_up.play()
+
+        # 아이템을 먹으면 길이 줄이기.
+        # 만약 길이가 1이라면 길이를 줄이지 않고 위치만 바꿈.
+        if s.body[0].pos == item.pos:
+            if len(s.body) > 1:
+                s.removeCube()
+                item = cube(randomSnack(rows, s), color=(255,255,255))
+            item = cube(randomSnack(rows, s), color=(255,255,255))
+            life_up.play()
+        
+
+        # 장애물에 닿았을 때 게임오버
+        if s.body[0].pos == obstacle.pos:
+            print("Score:", score)
+            gameover = 1
+            s.reset((10,10))
+            life_down.play()
+            score = 0
+
         for x in range(len(s.body)):
             if s.body[x].pos in list(map(lambda z:z.pos,s.body[x+1:])):
-                print("Score:", len(s.body))
+                print("Score:", score)
+                gameover = 1
                 s.reset((10,10))
+                life_down.play()
+                score = 0
                 break
+
                     
         redrawWindow()
+        gameover = 0
 
 main()
-    
-
-    
